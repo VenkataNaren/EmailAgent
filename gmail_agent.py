@@ -23,6 +23,7 @@ from googleapiclient.discovery import build
 
 MODEL = "llama3.1:8b"
 MAX_STEPS = 5
+SUBJECT_SUFFIX = " Sent with Email AI Agent"
 SCOPES = [
     "https://www.googleapis.com/auth/gmail.readonly",
     "https://www.googleapis.com/auth/gmail.send",
@@ -105,6 +106,10 @@ def read_email(message_id: str) -> str:
 def send_email(to: str, subject: str, body: str) -> str:
     """Send an email. Only call this after the user has clearly asked you to send it."""
     try:
+        # Always tag the subject (skip if the model already added it)
+        if not subject.endswith(SUBJECT_SUFFIX):
+            subject = subject + SUBJECT_SUFFIX
+
         # Human approval gate: enforced by this code, so the model can't skip it
         print(f"\n  About to send:\n  To: {to}\n  Subject: {subject}\n  Body: {body}")
         if input("  Send this? (y/n): ").strip().lower() != "y":
